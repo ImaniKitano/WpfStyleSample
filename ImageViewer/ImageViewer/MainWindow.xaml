@@ -1,0 +1,90 @@
+﻿<Window x:Class="ImageViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImageViewer"
+        d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
+        xmlns:system="clr-namespace:System;assembly=mscorlib" 
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="650"
+        Padding="5">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <!-- リソース取り込み-->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary  Source="pack://Application:,,,/CommonResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--#region ローカルなリソース-->
+            <local:FalseCollapseConverter x:Key="CollapseOnFalse"/>
+            <local:TrueCollapseConverter x:Key="CollapseOnTrue"/>
+            <!--#endregion-->
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <DockPanel>
+        <!--#region 制御領域 -->
+        <GroupBox Header="Image file" DockPanel.Dock="Top"
+                  Style="{DynamicResource GroupBoxStyle}">
+            <DockPanel>
+                <Button Content="Select file" Command="{Binding SelectFileCommand}"
+                        DockPanel.Dock="Left"/>
+                <TextBlock Text="Current File Path: " DockPanel.Dock="Left"/>
+                <TextBlock Text="{Binding PicImage.UriSource}"/>
+            </DockPanel>
+        </GroupBox>
+        <!--#endregion-->
+        <!--#region 表示領域 -->
+        <TabControl Style="{DynamicResource TabControlStyle}">
+            <TabItem Header="Picture"
+                     Style="{DynamicResource TabItemStyle}">
+                <DockPanel>
+                    <DockPanel.Resources>
+                        <Style x:Key="SizeControlCheckBoxStyle" TargetType="{x:Type CheckBox}"
+                               BasedOn="{StaticResource CheckBoxStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PicImage}" Value="{x:Null}">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DockPanel.Resources>
+                    <CheckBox Content="Original size"
+                              IsChecked="{Binding ShowInFullSize}"
+                              Style="{DynamicResource SizeControlCheckBoxStyle}"
+                              HorizontalAlignment="Left" DockPanel.Dock="Top"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                  CanContentScroll="False"
+                                  Visibility="{Binding ShowInFullSize, Converter={StaticResource CollapseOnFalse}}">
+                        <Image Source="{Binding PicImage}" Stretch="None" />
+                    </ScrollViewer>
+                    <Image Source="{Binding PicImage}" Stretch="Uniform"
+                           Visibility="{Binding ShowInFullSize, Converter={StaticResource CollapseOnTrue}}"/>
+                </DockPanel>
+            </TabItem>
+
+            <TabItem Header="Data"
+                        IsSelected="True">
+                <DataGrid RowHeaderStyle="{DynamicResource DataGridRowHeaderStyle}"
+                          RowStyle="{DynamicResource DataGridRowStyle}"
+                          ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle}"
+                          CellStyle="{DynamicResource DataGridCellStyle}"
+                          Style="{DynamicResource DataGridStyle}"
+                          ItemsSource="{Binding ImageInfoList}"
+                          IsReadOnly="True">
+                    <DataGrid.RowHeaderTemplate>
+                        <DataTemplate>
+                            <Border BorderThickness="0,0,1,0" BorderBrush="{StaticResource CommonBorderBrush}"
+                                    Padding="3,2,3,2">
+                                <TextBlock Text="{Binding Name}"/>
+                            </Border>
+                        </DataTemplate>
+                    </DataGrid.RowHeaderTemplate>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+        <!--#endregion-->
+    </DockPanel>
+</Window>
